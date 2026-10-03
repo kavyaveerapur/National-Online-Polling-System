@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Results</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+        <span class="navbar-brand">Online Voting System</span>
+    </div>
+</nav>
+<h2>Voting Results</h2>
+
+<table border="1">
+    <tr>
+        <th>Name</th>
+        <th>Party</th>
+        <th>Votes</th>
+    </tr>
+
+    <tr th:each="c : ${results}">
+        <td th:text="${c.name}"></td>
+        <td th:text="${c.party}"></td>
+        <td th:text="${c.votes}"></td>
+    </tr>
+</table>
+
+<br>
+
+<h3>
+Winner: <span th:text="${winner.name}"></span>
+</h3>
+
+<hr>
+
+<h3>Vote Chart</h3>
+
+<canvas id="voteChart"></canvas>
+
+<script th:inline="javascript">
+
+    let names = [];
+    let votes = [];
+
+    /*[# th:each="c : ${results}"]*/
+        names.push(/*[[${c.name}]]*/ "");
+        votes.push(/*[[${c.votes}]]*/ 0);
+    /*[/]*/
+
+    new Chart(document.getElementById("voteChart"), {
+        type: 'bar',
+        data: {
+            labels: names,
+            datasets: [{
+                label: 'Votes',
+                data: votes
+            }]
+        }
+    });
+
+</script>
+
+<br>
+<a href="/voter-dashboard">Back</a>
+
+</body>
+</html>

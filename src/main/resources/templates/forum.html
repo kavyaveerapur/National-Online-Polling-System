@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Forum</title>
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+        <span class="navbar-brand">Online Voting System</span>
+    </div>
+</nav>
+<h2>Discussion Forum</h2>
+
+<form th:action="@{/forum}" th:object="${msg}" method="post">
+    Name: <input type="text" th:field="*{username}"><br><br>
+    Message: <input type="text" th:field="*{message}"><br><br>
+    <button type="submit">Post</button>
+</form>
+
+<hr>
+
+<div th:each="m : ${messages}">
+    <b th:text="${m.username}"></b>:
+    <span th:text="${m.message}"></span>
+    <br><br>
+</div>
+
+<br>
+<a href="/voter-dashboard">Back</a>
+
+</body>
+</html>

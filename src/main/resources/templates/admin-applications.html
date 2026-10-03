@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<h2>Pending Applications</h2>
+
+<table border="1">
+    <tr>
+        <th>Name</th>
+        <th>Address</th>
+        <th>Aadhaar</th>
+        <th>Action</th>
+    </tr>
+
+    <tr th:each="a : ${list}">
+        <td th:text="${a.name}"></td>
+        <td th:text="${a.address}"></td>
+        <td th:text="${a.aadhaar}"></td>
+
+        <td>
+            <a th:href="@{'/admin/approve/' + ${a.id}}">Approve</a>
+            |
+            <a th:href="@{'/admin/reject/' + ${a.id}}">Reject</a>
+        </td>
+    </tr>
+
+</table>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+        <span class="navbar-brand">Online Voting System</span>
+    </div>
+</nav>
+<h2>Vote Here</h2>
+
+<form action="/vote" method="post">
+
+    <div th:each="c : ${candidates}">
+        <input type="radio" name="candidateId" th:value="${c.id}">
+        <span th:text="${c.name}"></span> -
+        <span th:text="${c.party}"></span>
+        <br>
+    </div>
+
+    <button type="submit">Submit Vote</button>
+
+</form>
+
+</body>
+</html>

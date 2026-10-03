@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<h2>Voter Card Application</h2>
+
+<form th:action="@{/apply}" th:object="${app}" method="post">
+
+    Name: <input type="text" th:field="*{name}"><br>
+    Address: <input type="text" th:field="*{address}"><br>
+    Aadhaar: <input type="text" th:field="*{aadhaar}"><br>
+
+    <button type="submit">Apply</button>
+
+</form>
+
+</body>
+</html>
