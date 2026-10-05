@@ -1,68 +1,224 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Results</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Results & Interactive Analytics - National Polling System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+        .navbar-custom {
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .card-custom {
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            padding: 2rem;
+        }
+        .winner-card {
+            background: linear-gradient(135deg, #78350f 0%, #451a03 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.35);
+        }
+        .chart-box {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 1.5rem;
+        }
+        .progress {
+            background-color: #0f172a;
+            height: 14px;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-dark bg-dark mb-4">
-    <div class="container-fluid">
-        <span class="navbar-brand">Online Voting System</span>
+
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom mb-4 py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/dashboard">
+            <i class="bi bi-bar-chart-line-fill text-info fs-4"></i>
+            <span>National Election Analytics & Live Results</span>
+        </a>
+        <a href="/dashboard" class="btn btn-outline-light btn-sm rounded-pill"><i class="bi bi-arrow-left me-1"></i> Back to Dashboard</a>
     </div>
 </nav>
-<h2>Voting Results</h2>
 
-<table border="1">
-    <tr>
-        <th>Name</th>
-        <th>Party</th>
-        <th>Votes</th>
-    </tr>
+<div class="container py-3">
 
-    <tr th:each="c : ${results}">
-        <td th:text="${c.name}"></td>
-        <td th:text="${c.party}"></td>
-        <td th:text="${c.votes}"></td>
-    </tr>
-</table>
+    <!-- Winner Announcement Banner -->
+    <div class="winner-card mb-4 text-center" th:if="${winner != null && winner.totalVotes > 0}">
+        <div class="d-inline-block bg-warning text-dark px-3 py-1 rounded-pill fw-bold text-uppercase small mb-2">
+            <i class="bi bi-trophy-fill me-1"></i> Leading / Winner Candidate
+        </div>
+        <h2 class="fw-bold text-white mb-1" th:text="${winner.name}">Winner Name</h2>
+        <p class="text-warning mb-3 fw-semibold">
+            <span th:text="${winner.party}">Party</span> | Constituency: <span th:text="${winner.constituency}">Constituency</span>
+        </p>
+        <div class="badge bg-black bg-opacity-60 fs-5 px-4 py-2 border border-warning rounded-pill">
+            Combined Total Votes: <strong class="text-warning ms-1" th:text="${winner.totalVotes}">0</strong>
+        </div>
+    </div>
 
-<br>
+    <!-- Analytics Charts Section -->
+    <div class="row g-4 mb-4" th:if="${!#lists.isEmpty(results)}">
+        <div class="col-lg-8">
+            <div class="chart-box h-100">
+                <h5 class="fw-bold text-white mb-3"><i class="bi bi-bar-chart-fill text-info me-2"></i>Vote Distribution per Candidate</h5>
+                <canvas id="votesBarChart" height="220"></canvas>
+            </div>
+        </div>
 
-<h3>
-Winner: <span th:text="${winner.name}"></span>
-</h3>
+        <div class="col-lg-4">
+            <div class="chart-box h-100 text-center">
+                <h5 class="fw-bold text-white mb-3"><i class="bi bi-pie-chart-fill text-warning me-2"></i>Voting Channel Breakdown</h5>
+                <div style="max-width: 260px; margin: 0 auto;">
+                    <canvas id="votingTypeDoughnutChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<hr>
+    <!-- Tabular Breakdown & Progress Bars -->
+    <div class="card-custom">
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
+            <div>
+                <h4 class="fw-bold text-white mb-1"><i class="bi bi-table text-info me-2"></i>Detailed Vote Counts & Statistics</h4>
+                <p class="text-secondary small mb-0">Requirement vii & viii: Live calculated stats combining online votes and manual booth results</p>
+            </div>
+            <span class="badge bg-info text-dark px-3 py-2 fs-6 rounded-pill"><i class="bi bi-broadcast me-1"></i> Real-Time Feed</span>
+        </div>
 
-<h3>Vote Chart</h3>
+        <div th:if="${#lists.isEmpty(results)}" class="text-center py-5 text-secondary">
+            <i class="bi bi-bar-chart fs-1 d-block mb-2"></i>
+            <h5>No Election Data Available</h5>
+            <p class="small">Election results will appear here as votes are cast.</p>
+        </div>
 
-<canvas id="voteChart"></canvas>
+        <div th:if="${!#lists.isEmpty(results)}" class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Candidate</th>
+                        <th>Party</th>
+                        <th>Constituency</th>
+                        <th class="text-center">Online Votes</th>
+                        <th class="text-center">Manual Offline Votes</th>
+                        <th class="text-center">Total Combined</th>
+                        <th style="min-width: 180px;">Vote Share</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="r : ${results}">
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <img th:if="${r.photoUrl != null}" th:src="${r.photoUrl}" class="rounded-circle border border-secondary" style="width: 45px; height: 45px; object-fit: cover;">
+                                <div th:if="${r.photoUrl == null}" class="bg-secondary rounded-circle text-center" style="width: 45px; height: 45px; line-height: 45px;"><i class="bi bi-person text-white"></i></div>
+                                <div>
+                                    <div class="fw-bold text-white candidate-name-item" th:text="${r.name}">Candidate Name</div>
+                                    <span class="badge bg-secondary small" th:text="${r.status}">APPROVED</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-info fw-semibold" th:text="${r.party}">Party</td>
+                        <td th:text="${r.constituency}">Constituency</td>
+                        <td class="text-center fw-bold text-success candidate-online-item" th:text="${r.onlineVotes}">0</td>
+                        <td class="text-center fw-bold text-warning candidate-manual-item" th:text="${r.manualVotes}">0</td>
+                        <td class="text-center">
+                            <span class="badge bg-primary fs-6 px-3 py-2 fw-bold candidate-total-item" th:text="${r.totalVotes}">0</span>
+                        </td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped bg-info candidate-bar-item" role="progressbar" style="width: 0%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 <script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        const names = [];
+        const onlineVotes = [];
+        const manualVotes = [];
+        const totalVotes = [];
 
-    let names = [];
-    let votes = [];
+        document.querySelectorAll(".candidate-name-item").forEach(el => names.push(el.innerText.trim()));
+        document.querySelectorAll(".candidate-online-item").forEach(el => onlineVotes.push(parseInt(el.innerText.trim()) || 0));
+        document.querySelectorAll(".candidate-manual-item").forEach(el => manualVotes.push(parseInt(el.innerText.trim()) || 0));
+        document.querySelectorAll(".candidate-total-item").forEach(el => totalVotes.push(parseInt(el.innerText.trim()) || 0));
 
-    /*[# th:each="c : ${results}"]*/
-        names.push(/*[[${c.name}]]*/ "");
-        votes.push(/*[[${c.votes}]]*/ 0);
-    /*[/]*/
+        const grandTotal = totalVotes.reduce((a, b) => a + b, 0);
 
-    new Chart(document.getElementById("voteChart"), {
-        type: 'bar',
-        data: {
-            labels: names,
-            datasets: [{
-                label: 'Votes',
-                data: votes
-            }]
+        // Update progress bars
+        const bars = document.querySelectorAll(".candidate-bar-item");
+        totalVotes.forEach((val, i) => {
+            if (bars[i]) {
+                const pct = grandTotal > 0 ? Math.round((val / grandTotal) * 100) : 0;
+                bars[i].style.width = pct + "%";
+                bars[i].innerText = pct + "%";
+            }
+        });
+
+        // Bar Chart
+        if (names.length > 0) {
+            new Chart(document.getElementById('votesBarChart'), {
+                type: 'bar',
+                data: {
+                    labels: names,
+                    datasets: [
+                        { label: 'Online Votes', data: onlineVotes, backgroundColor: '#059669', borderRadius: 6 },
+                        { label: 'Manual Booth Votes', data: manualVotes, backgroundColor: '#d97706', borderRadius: 6 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#f8fafc' } } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+
+            // Doughnut Chart
+            const totalOnline = onlineVotes.reduce((a, b) => a + b, 0);
+            const totalManual = manualVotes.reduce((a, b) => a + b, 0);
+
+            new Chart(document.getElementById('votingTypeDoughnutChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Online Digital Votes', 'Manual Booth Votes'],
+                    datasets: [{
+                        data: [totalOnline, totalManual],
+                        backgroundColor: ['#0284c7', '#f59e0b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#f8fafc' } } }
+                }
+            });
         }
     });
-
 </script>
-
-<br>
-<a href="/voter-dashboard">Back</a>
 
 </body>
 </html>

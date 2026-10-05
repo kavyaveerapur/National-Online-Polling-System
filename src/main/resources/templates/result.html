@@ -1,2 +1,49 @@
-<h2 th:text="${msg}"></h2>
-<a href="/vote">Back</a>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vote Status - National Online Polling System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-custom {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            padding: 3rem 2rem;
+            max-width: 480px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card-custom text-center">
+    <div class="mb-4">
+        <i class="bi bi-shield-check text-success display-1"></i>
+    </div>
+    
+    <h3 class="fw-bold text-white mb-2">Voting Response</h3>
+    <div class="alert alert-info bg-info bg-opacity-10 border border-info text-info rounded-3 py-3 mb-4" th:text="${msg}">
+        Vote cast response message
+    </div>
+
+    <div class="d-grid gap-2">
+        <a href="/results" class="btn btn-primary fw-bold py-2"><i class="bi bi-bar-chart-line me-1"></i> View Election Statistics</a>
+        <a href="/voter-dashboard" class="btn btn-outline-light py-2"><i class="bi bi-house-door me-1"></i> Return to Dashboard</a>
+    </div>
+</div>
+
+</body>
+</html>

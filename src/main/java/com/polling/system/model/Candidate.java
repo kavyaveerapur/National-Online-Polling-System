@@ -14,14 +14,14 @@ public class Candidate {
     private String constituency;
     
     @Column(length = 2000)
-    private String manifesto;
+    private String profileDetails;
+    private String photoUrl;
     
-    private String photoPath;
-    private String status; // PENDING_APPROVAL, APPROVED, REJECTED
+    private String status; // PENDING, APPROVED, REJECTED
     
-    private int onlineVotes;
-    private int manualVotes;
-
+    private int onlineVotes = 0;
+    private int manualVotes = 0;
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -34,11 +34,11 @@ public class Candidate {
     public String getConstituency() { return constituency; }
     public void setConstituency(String constituency) { this.constituency = constituency; }
 
-    public String getManifesto() { return manifesto; }
-    public void setManifesto(String manifesto) { this.manifesto = manifesto; }
+    public String getProfileDetails() { return profileDetails; }
+    public void setProfileDetails(String profileDetails) { this.profileDetails = profileDetails; }
 
-    public String getPhotoPath() { return photoPath; }
-    public void setPhotoPath(String photoPath) { this.photoPath = photoPath; }
+    public String getPhotoUrl() { return photoUrl; }
+    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
@@ -50,8 +50,4 @@ public class Candidate {
     public void setManualVotes(int manualVotes) { this.manualVotes = manualVotes; }
 
     public int getTotalVotes() { return onlineVotes + manualVotes; }
-
-    // Legacy getter/setter compatibility for votes
-    public int getVotes() { return getTotalVotes(); }
-    public void setVotes(int votes) { this.onlineVotes = votes; }
 }

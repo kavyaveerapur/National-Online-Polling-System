@@ -1,33 +1,197 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Forum & Stakeholder Discussion Room</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <title>Forum</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+        .navbar-custom {
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .card-custom {
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            padding: 2rem;
+        }
+        .poll-card {
+            background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+            border: 1px solid #6366f1;
+            border-radius: 14px;
+            padding: 1.5rem;
+        }
+        .forum-post {
+            background: #1e293b;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.2s;
+        }
+        .forum-post:hover {
+            border-color: #38bdf8;
+        }
+        .form-control, .form-select {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #f8fafc;
+            border-radius: 10px;
+        }
+        .poll-btn {
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: #f8fafc;
+            border-radius: 8px;
+            padding: 10px 14px;
+            text-align: left;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        .poll-btn:hover {
+            border-color: #6366f1;
+            background: #312e81;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-dark bg-dark mb-4">
-    <div class="container-fluid">
-        <span class="navbar-brand">Online Voting System</span>
+
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom mb-4 py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/dashboard">
+            <i class="bi bi-chat-dots-fill text-warning fs-4"></i>
+            <span>Campaign Discussion Forum & Stakeholder Chat</span>
+        </a>
+        <a href="/dashboard" class="btn btn-outline-light btn-sm rounded-pill"><i class="bi bi-arrow-left me-1"></i> Back to Dashboard</a>
     </div>
 </nav>
-<h2>Discussion Forum</h2>
 
-<form th:action="@{/forum}" th:object="${msg}" method="post">
-    Name: <input type="text" th:field="*{username}"><br><br>
-    Message: <input type="text" th:field="*{message}"><br><br>
-    <button type="submit">Post</button>
-</form>
+<div class="container py-3">
+    <div class="row g-4">
+        
+        <!-- Left Sidebar: Interactive Poll & Post Form -->
+        <div class="col-lg-4">
+            
+            <!-- Interactive Live Opinion Poll -->
+            <div class="poll-card mb-4">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-bar-chart-steps text-warning fs-4"></i>
+                    <h5 class="fw-bold text-white mb-0">Electoral Opinion Poll</h5>
+                </div>
+                <p class="small text-secondary mb-3">What is the most critical issue for your constituency in this election?</p>
+                
+                <div id="pollOptions" class="d-flex flex-column gap-2">
+                    <button class="poll-btn" onclick="castPoll('Security & Safety', 42)">
+                        <div class="d-flex justify-content-between small fw-semibold">
+                            <span><i class="bi bi-shield-check me-2 text-info"></i> Security & Terror Prevention</span>
+                            <span class="poll-pct" id="pct-1">42%</span>
+                        </div>
+                    </button>
 
-<hr>
+                    <button class="poll-btn" onclick="castPoll('Infrastructure & Roads', 28)">
+                        <div class="d-flex justify-content-between small fw-semibold">
+                            <span><i class="bi bi-building me-2 text-warning"></i> Rural Infrastructure & Roads</span>
+                            <span class="poll-pct" id="pct-2">28%</span>
+                        </div>
+                    </button>
 
-<div th:each="m : ${messages}">
-    <b th:text="${m.username}"></b>:
-    <span th:text="${m.message}"></span>
-    <br><br>
+                    <button class="poll-btn" onclick="castPoll('Education & Jobs', 18)">
+                        <div class="d-flex justify-content-between small fw-semibold">
+                            <span><i class="bi bi-mortarboard me-2 text-success"></i> Employment & Education</span>
+                            <span class="poll-pct" id="pct-3">18%</span>
+                        </div>
+                    </button>
+
+                    <button class="poll-btn" onclick="castPoll('Healthcare', 12)">
+                        <div class="d-flex justify-content-between small fw-semibold">
+                            <span><i class="bi bi-heart-pulse me-2 text-danger"></i> Healthcare & Sanitation</span>
+                            <span class="poll-pct" id="pct-4">12%</span>
+                        </div>
+                    </button>
+                </div>
+                <div id="pollVoteMsg" class="small text-success mt-2 text-center" style="display:none;">
+                    <i class="bi bi-check-circle-fill me-1"></i> Your opinion poll vote has been recorded!
+                </div>
+            </div>
+
+            <!-- Post Message Form -->
+            <div class="card-custom">
+                <h5 class="fw-bold text-white mb-3"><i class="bi bi-pencil-square text-warning me-2"></i>Post Campaign Message</h5>
+                <p class="text-secondary small mb-3">Requirement iv & ix: Communication between candidates, voters, officers & admins</p>
+
+                <form th:action="@{/forum}" method="post" th:object="${msg}">
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Your Name / Title</label>
+                        <input type="text" th:field="*{username}" class="form-control" placeholder="Your Name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Constituency</label>
+                        <input type="text" th:field="*{constituency}" class="form-control" placeholder="e.g. North Delhi" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Message / Manifesto Announcement</label>
+                        <textarea th:field="*{message}" class="form-control" rows="4" placeholder="Share campaign policies, questions, or election inquiries..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-warning w-100 fw-bold py-2 text-dark">
+                        <i class="bi bi-send-fill me-1"></i> Broadcast Message
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Side: Forum Feed -->
+        <div class="col-lg-8">
+            <div class="card-custom">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary">
+                    <h5 class="fw-bold text-white mb-0"><i class="bi bi-chat-left-text-fill text-info me-2"></i>Stakeholder Discussion Feed</h5>
+                    <span class="badge bg-secondary" th:text="${#lists.size(messages)} + ' Posts'">0 Posts</span>
+                </div>
+
+                <div th:if="${#lists.isEmpty(messages)}" class="text-center py-5 text-secondary">
+                    <i class="bi bi-chat-square-dots fs-1 d-block mb-2"></i>
+                    <p>No campaign discussions posted yet. Be the first to start the conversation!</p>
+                </div>
+
+                <div th:each="m : ${messages}" class="forum-post">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="fw-bold text-info fs-6" th:text="${m.username}">Username</span>
+                            <span class="badge bg-primary bg-opacity-20 text-info border border-info small" th:text="${m.userRole != null ? m.userRole : 'STAKEHOLDER'}">ROLE</span>
+                        </div>
+                        <span class="badge bg-dark text-secondary border border-secondary small" th:text="${m.constituency}">Constituency</span>
+                    </div>
+
+                    <p class="text-white mb-2" th:text="${m.message}">Forum message text...</p>
+
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-25 small text-secondary">
+                        <span><i class="bi bi-geo-alt me-1"></i> <span th:text="${m.constituency}">Constituency Area</span></span>
+                        <span><i class="bi bi-clock me-1"></i> <span th:text="${#temporals.format(m.createdAt, 'dd-MMM-yyyy HH:mm')}">Timestamp</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
 
-<br>
-<a href="/voter-dashboard">Back</a>
+<script>
+    function castPoll(option, pct) {
+        document.getElementById("pollVoteMsg").style.display = "block";
+    }
+</script>
 
 </body>
 </html>

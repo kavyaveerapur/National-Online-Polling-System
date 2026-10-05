@@ -11,18 +11,13 @@ public class User {
     private Long id;
 
     private String name;
-    
-    @Column(unique = true)
     private String email;
-    
-    @Column(unique = true)
-    private String voterId; // Voter ID used as username
-    
+    private String voterId;
     private String password;
-    private String role; // ADMIN, FIELD_OFFICER, CANDIDATE, VOTER
+    private String role; // VOTER, CANDIDATE, FIELD_OFFICER, ADMIN
     private String constituency;
 
-    private boolean verified; // Field officer / Admin approval
+    private boolean verified; // Admin/Field Officer approval
     private boolean voted;    // Prevent multiple voting
 
     public Long getId() { return id; }

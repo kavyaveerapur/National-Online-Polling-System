@@ -3,6 +3,7 @@ package com.polling.system.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.polling.system.model.VoterApplication;
 import com.polling.system.model.User;
 import com.polling.system.repository.VoterApplicationRepository;
@@ -10,11 +11,8 @@ import com.polling.system.repository.UserRepository;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -28,19 +26,19 @@ public class VoterService {
 
     private static final String UPLOAD_DIR = "uploads/voter-photos/";
 
-    public VoterApplication apply(VoterApplication app, MultipartFile photoFile) {
+    public VoterApplication apply(VoterApplication app, MultipartFile photo) {
         app.setStatus("PENDING");
 
-        if (photoFile != null && !photoFile.isEmpty()) {
+        if (photo != null && !photo.isEmpty()) {
             try {
                 File dir = new File(UPLOAD_DIR);
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                }
-                String fileName = UUID.randomUUID().toString() + "_" + photoFile.getOriginalFilename();
-                Path filePath = Paths.get(UPLOAD_DIR + fileName);
-                Files.write(filePath, photoFile.getBytes());
-                app.setPhotoPath("/uploads/voter-photos/" + fileName);
+                if (!dir.exists()) dir.mkdirs();
+
+                String filename = UUID.randomUUID().toString() + "_" + photo.getOriginalFilename();
+                Path filePath = Paths.get(UPLOAD_DIR + filename);
+                Files.copy(photo.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+                app.setPhotoPath("/" + UPLOAD_DIR + filename);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -57,26 +55,22 @@ public class VoterService {
         return repo.findAll();
     }
 
-    public VoterApplication getApplicationByUserId(Long userId) {
-        return repo.findByUserId(userId).orElse(null);
-    }
-
-    // Field Officer Approval with Report & Generated Voter ID Card
-    public void approve(Long id, String report) {
+    // Field Officer Approval (Requirement i)
+    public void approveByFieldOfficer(Long id, String fieldOfficerReport) {
         VoterApplication app = repo.findById(id).orElse(null);
         if (app != null) {
             app.setStatus("APPROVED");
-            app.setFieldOfficerReport(report != null && !report.trim().isEmpty() ? report : "Address & Identity validated by Field Officer.");
-
+            app.setFieldOfficerReport(fieldOfficerReport);
+            
             // Generate unique Voter ID Card Number
-            String generatedVoterId = "IND-" + (100000 + new Random().nextInt(900000));
-            app.setGeneratedVoterId(generatedVoterId);
+            String newVoterId = "VID-" + System.currentTimeMillis() % 1000000;
+            app.setGeneratedVoterId(newVoterId);
 
             // Update associated User
             User user = app.getUser();
             if (user != null) {
                 user.setVerified(true);
-                user.setVoterId(generatedVoterId);
+                user.setVoterId(newVoterId);
                 user.setConstituency(app.getConstituency());
                 userRepo.save(user);
             }
@@ -85,12 +79,11 @@ public class VoterService {
         }
     }
 
-    // Field Officer Rejection
-    public void reject(Long id, String report) {
+    public void rejectByFieldOfficer(Long id, String fieldOfficerReport) {
         VoterApplication app = repo.findById(id).orElse(null);
         if (app != null) {
             app.setStatus("REJECTED");
-            app.setFieldOfficerReport(report != null && !report.trim().isEmpty() ? report : "Application rejected after field validation.");
+            app.setFieldOfficerReport(fieldOfficerReport);
             repo.save(app);
         }
     }

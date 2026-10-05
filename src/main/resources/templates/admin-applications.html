@@ -1,30 +1,107 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Field Officer Applications - Verification Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+        .navbar-custom {
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .card-custom {
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            padding: 2rem;
+        }
+        .form-control {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #f8fafc;
+        }
+    </style>
+</head>
 <body>
 
-<h2>Pending Applications</h2>
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom mb-4 py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/dashboard">
+            <i class="bi bi-shield-check text-info fs-4"></i>
+            <span>Field Officer Verification Portal</span>
+        </a>
+        <a href="/dashboard" class="btn btn-outline-light btn-sm rounded-pill"><i class="bi bi-arrow-left me-1"></i> Back to Dashboard</a>
+    </div>
+</nav>
 
-<table border="1">
-    <tr>
-        <th>Name</th>
-        <th>Address</th>
-        <th>Aadhaar</th>
-        <th>Action</th>
-    </tr>
+<div class="container py-3">
+    <div class="card-custom">
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
+            <div>
+                <h3 class="fw-bold text-white mb-1"><i class="bi bi-person-bounding-box text-info me-2"></i>Pending Voter ID Applications</h3>
+                <p class="text-secondary small mb-0">Requirement i: Field Officers validate address & identity before generating Voter ID</p>
+            </div>
+            <span class="badge bg-primary px-3 py-2 fs-6 rounded-pill" th:text="${#lists.size(list)} + ' Pending'">0 Pending</span>
+        </div>
 
-    <tr th:each="a : ${list}">
-        <td th:text="${a.name}"></td>
-        <td th:text="${a.address}"></td>
-        <td th:text="${a.aadhaar}"></td>
+        <div th:if="${#lists.isEmpty(list)}" class="text-center py-5 text-secondary">
+            <i class="bi bi-check-circle fs-1 d-block text-success mb-2"></i>
+            <h5>All Voter ID Applications Processed</h5>
+            <p class="small">There are currently no pending verification requests.</p>
+        </div>
 
-        <td>
-            <a th:href="@{'/admin/approve/' + ${a.id}}">Approve</a>
-            |
-            <a th:href="@{'/admin/reject/' + ${a.id}}">Reject</a>
-        </td>
-    </tr>
-
-</table>
+        <div th:if="${!#lists.isEmpty(list)}" class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Photo</th>
+                        <th>Applicant Name</th>
+                        <th>Constituency</th>
+                        <th>Aadhaar</th>
+                        <th>Address Details</th>
+                        <th>Field Officer Report & Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="app : ${list}">
+                        <td style="width: 80px;">
+                            <img th:if="${app.photoPath != null}" th:src="${app.photoPath}" class="rounded-3 border border-secondary" style="width: 60px; height: 60px; object-fit: cover;">
+                            <div th:if="${app.photoPath == null}" class="bg-secondary text-center rounded-3 p-2"><i class="bi bi-person fs-3 text-white"></i></div>
+                        </td>
+                        <td>
+                            <div class="fw-bold text-white" th:text="${app.name}">Name</div>
+                            <span class="badge bg-warning text-dark small" th:text="${app.status}">PENDING</span>
+                        </td>
+                        <td th:text="${app.constituency}">Constituency</td>
+                        <td th:text="${app.aadhaar}">Aadhaar</td>
+                        <td style="max-width: 250px;" class="small text-secondary" th:text="${app.address}">Address</td>
+                        <td>
+                            <div class="d-flex flex-column gap-2">
+                                <form th:action="@{'/field-officer/approve/' + ${app.id}}" method="post" class="d-flex gap-2">
+                                    <input type="text" name="report" class="form-control form-control-sm" placeholder="Field Officer Report (e.g. Address Verified)" required>
+                                    <button type="submit" class="btn btn-success btn-sm text-nowrap"><i class="bi bi-check-lg me-1"></i> Approve & Issue Voter ID</button>
+                                </form>
+                                <form th:action="@{'/field-officer/reject/' + ${app.id}}" method="post" class="d-flex gap-2">
+                                    <input type="text" name="report" class="form-control form-control-sm" placeholder="Rejection reason" required>
+                                    <button type="submit" class="btn btn-outline-danger btn-sm text-nowrap"><i class="bi bi-x-lg me-1"></i> Reject</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

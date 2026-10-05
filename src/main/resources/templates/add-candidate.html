@@ -1,18 +1,96 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Self-Nomination - National Online Polling System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+        .navbar-custom {
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .card-custom {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            padding: 2.5rem;
+        }
+        .form-control {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #f8fafc;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+        }
+        .form-control:focus {
+            background: #0f172a;
+            border-color: #38bdf8;
+            color: #f8fafc;
+        }
+    </style>
+</head>
 <body>
 
-<h2>Add Candidate</h2>
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom mb-4 py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/">
+            <i class="bi bi-box-seam-fill text-warning fs-4"></i>
+            <span>Candidate Nomination Portal</span>
+        </a>
+        <a href="/" class="btn btn-outline-light btn-sm rounded-pill"><i class="bi bi-arrow-left me-1"></i> Home</a>
+    </div>
+</nav>
 
-<form th:action="@{/admin/add-candidate}" th:object="${candidate}" method="post">
+<div class="container py-3 d-flex justify-content-center">
+    <div class="card-custom col-lg-7">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-white mb-1"><i class="bi bi-person-badge-fill text-warning me-2"></i>Election Candidate Nomination</h3>
+            <p class="text-secondary small">Requirement iii: Election Commission candidate registration & profile submission</p>
+        </div>
 
-    Name: <input type="text" th:field="*{name}"><br><br>
+        <form th:action="@{/candidate/nominate}" th:object="${candidate}" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label class="form-label text-secondary small text-uppercase fw-semibold">Candidate Full Name</label>
+                <input type="text" th:field="*{name}" class="form-control" placeholder="Full Official Name" required>
+            </div>
 
-    Party: <input type="text" th:field="*{party}"><br><br>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label text-secondary small text-uppercase fw-semibold">Political Party Name</label>
+                    <input type="text" th:field="*{party}" class="form-control" placeholder="Party or Independent" required>
+                </div>
 
-    <button type="submit">Add Candidate</button>
+                <div class="col-md-6">
+                    <label class="form-label text-secondary small text-uppercase fw-semibold">Electoral Constituency</label>
+                    <input type="text" th:field="*{constituency}" class="form-control" placeholder="e.g. North Delhi" required>
+                </div>
+            </div>
 
-</form>
+            <div class="mb-3">
+                <label class="form-label text-secondary small text-uppercase fw-semibold">Manifesto & Candidate Profile Details</label>
+                <textarea th:field="*{profileDetails}" class="form-control" rows="4" placeholder="Requirement v: Key policies, background, manifesto..." required></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label text-secondary small text-uppercase fw-semibold">Candidate Photograph</label>
+                <input type="file" name="photo" accept="image/*" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-warning w-100 fw-bold py-3 text-dark">
+                <i class="bi bi-send-fill me-2"></i> Submit Nomination to Election Commission
+            </button>
+        </form>
+    </div>
+</div>
 
 </body>
 </html>
